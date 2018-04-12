@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+require 'uri'
+require 'net/http'
+
+DESTINATION = URI(ENV["SERVER_URL"] || "http://localhost:4567/")
+
+def submit(data)
+  req = Net::HTTP::Post.new(DESTINATION, 'Content-Type' => 'application/json')
+  req.body = "{\"payload\": [#{data}]}"
+  puts "Sending: #{req.body}"
+  res = Net::HTTP.start(DESTINATION.hostname, DESTINATION.port) do |http|
+    http.request(req)
+  end
+  puts "Got: #{res.code} -- #{res.body}"
+end
+
+ARGF.each_line do |line|
+  submit(line)
+end
